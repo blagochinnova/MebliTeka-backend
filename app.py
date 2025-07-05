@@ -18,7 +18,7 @@ UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 app = Flask(__name__)
-CORS(app)  # Дозволяє запити з frontend
+CORS(app, origins=["https://mebli-teka-v2.vercel.app"])  # Дозволяє запити з frontend
 
 # 📞 Обробка форми "Замовити консультацію"
 @app.route('/api/consult', methods=['POST'])
