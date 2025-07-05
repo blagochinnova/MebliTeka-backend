@@ -21,8 +21,11 @@ app = Flask(__name__)
 CORS(app, origins=["https://mebli-teka-v2.vercel.app"])  # Дозволяє запити з frontend
 
 # 📞 Обробка форми "Замовити консультацію"
-@app.route('/api/consult', methods=['POST'])
+@app.route('/api/consult', methods=['POST', 'OPTIONS'])
 def consult():
+    if request.method == 'OPTIONS':
+        return '', 200
+
     data = request.json
     name = data.get('name')
     phone = data.get('phone')
@@ -39,9 +42,13 @@ def consult():
     else:
         return jsonify({'error': 'Помилка відправки'}), 500
 
+
 # 📄 Обробка форми "Надіслати резюме"
-@app.route('/api/send_resume', methods=['POST'])
-def resume():
+@app.route('/api/send_resume', methods=['POST', 'OPTIONS'])
+def send_resume():
+    if request.method == 'OPTIONS':
+        return '', 200  # Обов'язкова відповідь на preflight-запит
+
     name = request.form.get('name')
     phone = request.form.get('phone')
     file = request.files.get('resume')
@@ -53,7 +60,6 @@ def resume():
     filepath = os.path.join(UPLOAD_FOLDER, filename)
     file.save(filepath)
 
-    # Відправити файл у Telegram
     with open(filepath, 'rb') as f:
         response = requests.post(
             API_URL_FILE,
@@ -68,6 +74,3 @@ def resume():
         return jsonify({'message': 'Резюме відправлено!'})
     else:
         return jsonify({'error': 'Помилка надсилання до Telegram'}), 500
-
-if __name__ == '__main__':
-    app.run(port=5000, debug=True)
